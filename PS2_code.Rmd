@@ -1,0 +1,155 @@
+---
+title: "Problem Set 2 Code"
+author: "Terence Chan"
+date: "October 17, 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, 
+                      error = FALSE)
+```
+
+```{r}
+library(janitor)
+library(tidyverse)
+library(ggplot2)
+dat <- read.csv("gss.csv")
+```
+
+## Data Cleansing
+
+```{r}
+dat_new <- dat %>% 
+  clean_names() %>% 
+  rename(children_intention = number_total_children_intention) #use this code for changing response variable name into children_intention
+```
+
+```{r}
+dat_new <- dat_new %>% 
+  mutate(children_intention = case_when( #use this code for turning outcomes into "No" for 0 children or "Yes" for 1-4 children (i.e. a binary variable)
+    children_intention == 0 ~ "No",
+    children_intention == 1 ~ "Yes",
+    children_intention == 2 ~ "Yes",
+    children_intention == 3 ~ "Yes",
+    children_intention == 4 ~ "Yes",
+  ))
+```
+
+```{r}
+dat_new <- dat_new %>% 
+  mutate(own_rent = case_when(
+    own_rent == "Owned by you or a member of this household, even if it i..." 
+      ~ "Owned",
+    own_rent == "Rented, even if no cash rent is paid" ~ "Rented",
+  ))
+```
+
+```{r}
+dat_new <- dat_new %>% 
+  mutate(education = case_when(
+    education == "Less than high school diploma or its equivalent"
+      ~ "No High School Diploma",
+    education == "High school diploma or a high school equivalency certificate"
+      ~ "High School Diploma",
+    education == "Trade certificate or diploma" ~ "Trade Certificate",
+    education == "College, CEGEP or other non-university certificate or di..."
+      ~ "College Diploma",
+    education == "University certificate or diploma below the bachelor’s level"
+      ~ "University Certificate",
+    education == "Bachelor’s degree (e.g. B.A., B.Sc., LL.B.)" 
+      ~ "Bachelor's Degree",
+    education == "University certificate, diploma or degree above the bach..."
+      ~ "Postgraduate Degree"
+  ))
+```
+
+## Models
+
+```{r}
+dat_new$children_intention <- factor(dat_new$children_intention)
+logmod1 <- glm(children_intention ~ sex + province + pop_center 
+             + marital_status + education + own_rent +living_arrangement 
+             + hh_type + hh_size + average_hours_worked + income_family 
+             + income_respondent + occupation + lives_with_partner 
+             + children_in_household + partner_education 
+             + partner_main_activity + fin_supp_lump + fin_supp_other,
+             data = dat_new, family = "binomial") #fit model 1 into a logmod1
+summary(logmod1)
+anova(logmod1)
+```
+
+```{r}
+logmod2 <- glm(children_intention ~ sex + marital_status + education 
+               + living_arrangement + hh_size + income_family 
+               + income_respondent + occupation + children_in_household 
+               + partner_education + partner_main_activity + fin_supp_lump 
+               + fin_supp_other, data = dat_new, family = "binomial") #fit model 2 into a logmod2
+summary(logmod2)
+anova(logmod2)
+```
+
+```{r}
+logmod3 <- glm(children_intention ~ marital_status + living_arrangement
+               + partner_education + income_family + occupation,
+               data = dat_new, family = "binomial")
+summary(logmod3)
+anova(logmod3)
+```
+
+```{r}
+logmod4 <- glm(children_intention ~ sex + marital_status + own_rent 
+               + living_arrangement + hh_size + partner_main_activity 
+               + income_family + occupation, data = dat_new, 
+               family = "binomial") #added sex, own_rent, hh_size, partner_main_activity and removed partner_education
+summary(logmod4)
+anova(logmod4)
+```
+
+```{r}
+logmod5 <- glm(children_intention ~ sex + marital_status + education + own_rent
+               + living_arrangement + hh_size + partner_education 
+               + partner_main_activity + income_family + occupation, 
+               data = dat_new, family = "binomial") #added education and partner education
+summary(logmod5)
+anova(logmod5)
+```
+
+logmod5 is the best cause smallest AIC compared to logmod 3 and 4 and has many significant variables unlike logmod1 and logmod2
+  so we'll do ggplot on logmod5
+
+```{r}
+logmod5 %>% 
+  ggplot(aes(x = own_rent)) +
+  geom_bar() +
+  labs(x = "Type of Home Ownership", 
+       title = "Distribution of Homeownership of Respondents", 
+       caption = "Figure 1: most respondents own their home")
+
+logmod5 %>% 
+  ggplot(aes(x = marital_status)) +
+  geom_bar() +
+  labs(x = "Status", title = "Distribution of Marital Status of Respondents",
+       caption = "Figure 2: most respondents are married")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
