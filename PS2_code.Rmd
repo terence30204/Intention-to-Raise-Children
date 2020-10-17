@@ -74,7 +74,7 @@ logmod1 <- glm(children_intention ~ sex + province + pop_center
              + income_respondent + occupation + lives_with_partner 
              + children_in_household + partner_education 
              + partner_main_activity + fin_supp_lump + fin_supp_other,
-             data = dat_new, family = "binomial") #fit model 1 into a logmod1
+             data = dat_new, family = "binomial") 
 summary(logmod1)
 anova(logmod1)
 ```
@@ -84,7 +84,7 @@ logmod2 <- glm(children_intention ~ sex + marital_status + education
                + living_arrangement + hh_size + income_family 
                + income_respondent + occupation + children_in_household 
                + partner_education + partner_main_activity + fin_supp_lump 
-               + fin_supp_other, data = dat_new, family = "binomial") #fit model 2 into a logmod2
+               + fin_supp_other, data = dat_new, family = "binomial") 
 summary(logmod2)
 anova(logmod2)
 ```
@@ -101,7 +101,7 @@ anova(logmod3)
 logmod4 <- glm(children_intention ~ sex + marital_status + own_rent 
                + living_arrangement + hh_size + partner_main_activity 
                + income_family + occupation, data = dat_new, 
-               family = "binomial") #added sex, own_rent, hh_size, partner_main_activity and removed partner_education
+               family = "binomial") 
 summary(logmod4)
 anova(logmod4)
 ```
@@ -110,13 +110,10 @@ anova(logmod4)
 logmod5 <- glm(children_intention ~ sex + marital_status + education + own_rent
                + living_arrangement + hh_size + partner_education 
                + partner_main_activity + income_family + occupation, 
-               data = dat_new, family = "binomial") #added education and partner education
+               data = dat_new, family = "binomial") 
 summary(logmod5)
 anova(logmod5)
 ```
-
-logmod5 is the best cause smallest AIC compared to logmod 3 and 4 and has many significant variables unlike logmod1 and logmod2
-  so we'll do ggplot on logmod5
 
 ```{r}
 logmod5 %>% 
